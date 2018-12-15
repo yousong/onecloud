@@ -53,7 +53,7 @@ install: prepare_dir
 	done
 
 
-build: gendoc
+build:
 	$(MAKE) $(filter-out cmd/host-image, $(wildcard cmd/*))
 
 gendoc:
