@@ -918,13 +918,16 @@
   version = "v1.2.2"
 
 [[projects]]
-  digest = "1:a115409defa2eb9059f215a91573ac1126123c4feac6bbb8d97f05e2b7761fe2"
+  digest = "1:24fc81b26bdf2da87b04549f6a59941383d405f574fec22e33d55e60d456bbe0"
   name = "github.com/tencentcloud/tencentcloud-sdk-go"
   packages = [
     "tencentcloud/common",
     "tencentcloud/common/errors",
     "tencentcloud/common/http",
     "tencentcloud/common/profile",
+    "tencentcloud/common/regions",
+    "tencentcloud/cvm/v20170312",
+    "tencentcloud/vpc/v20170312",
   ]
   pruneopts = "UT"
   revision = "805d01dd0e2ef6e8ab69faf815c680e93c52c91a"
@@ -1498,6 +1501,9 @@
     "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common",
     "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/http",
     "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile",
+    "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/regions",
+    "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm/v20170312",
+    "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/vpc/v20170312",
     "github.com/tredoe/osutil/user/crypt/sha512_crypt",
     "github.com/vmware/govmomi",
     "github.com/vmware/govmomi/object",
