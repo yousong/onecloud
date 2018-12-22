@@ -57,6 +57,7 @@ func StartService() {
 		if !db.CheckSync(opts.AutoSyncTable) {
 			return
 		}
+		defer cloudcommon.CloseDB()
 	}
 
 	app.ListenAndServe(addr)

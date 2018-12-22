@@ -8,7 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
-	"yunion.io/x/onecloud/pkg/bonv/utils"
+	"yunion.io/x/onecloud/pkg/bonv/cloud/types"
 )
 
 type Client struct {
@@ -17,7 +17,7 @@ type Client struct {
 
 //type ClientConfig sdk.Config
 
-func NewClient(accessKeyId, accessKeySecret string) (utils.Client, error) {
+func NewClient(accessKeyId, accessKeySecret string) (types.Client, error) {
 	regionId := "cn-beijing"
 	config := sdk.NewConfig()
 	credential := &credentials.BaseCredential{
@@ -41,7 +41,7 @@ func (client *Client) DoUsuableTest() (bool, error) {
 	return true, nil
 }
 
-func (client *Client) DescribeVpc(r *utils.DescribeVpcRequest) (*utils.Vpc, error) {
+func (client *Client) DescribeVpc(r *types.DescribeVpcRequest) (*types.Vpc, error) {
 	req := vpc.CreateDescribeVpcAttributeRequest()
 	req.RpcRequest.RegionId = r.RegionId
 	req.VpcId = r.VpcId
@@ -50,15 +50,16 @@ func (client *Client) DescribeVpc(r *utils.DescribeVpcRequest) (*utils.Vpc, erro
 	if err != nil {
 		return nil, err
 	}
-	vpc := &utils.Vpc{
+	vpc := &types.Vpc{
 		Id:          resp.VpcId,
 		Name:        resp.VpcName,
 		Description: resp.Description,
 
-		Provider:   utils.PROVIDER_ALIYUN,
+		Provider:   types.PROVIDER_ALIYUN,
 		RegionId:   resp.RegionId,
 		Status:     resp.Status,
 		CidrBlock:  resp.CidrBlock,
+		VRouterId:  resp.VRouterId,
 		VSwitchIds: resp.VSwitchIds.VSwitchId,
 	}
 	if err := vpc.Validate(); err != nil {

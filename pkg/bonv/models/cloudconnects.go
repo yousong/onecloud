@@ -98,7 +98,7 @@ func (man *SCloudConnectManager) CreateFromRequest(ctx context.Context, req *typ
 			Equals("vpc_id0", vpcs[0].Id).
 			Equals("vpc_id1", vpcs[1].Id)
 		if q.Count() > 0 {
-			return fmt.Errorf("a connect request between %s and %s already exist", vpcs[0].CloudId(), vpcs[1].CloudId())
+			return fmt.Errorf("a connect request between %s and %s already exist", vpcs[0].UniqId(), vpcs[1].UniqId())
 		}
 
 		vpcInfo0 := &req.Vpcs[0]

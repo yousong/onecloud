@@ -9,14 +9,14 @@ import (
 	cvm "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm/v20170312"
 	vpc "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/vpc/v20170312"
 
-	"yunion.io/x/onecloud/pkg/bonv/utils"
+	"yunion.io/x/onecloud/pkg/bonv/cloud/types"
 )
 
 type Client struct {
 	credential *common.Credential
 }
 
-func NewClient(accessKeyId, accessKeySecret string) (utils.Client, error) {
+func NewClient(accessKeyId, accessKeySecret string) (types.Client, error) {
 	client := &Client{
 		credential: common.NewCredential(accessKeyId, accessKeySecret),
 	}
@@ -48,7 +48,7 @@ func (client *Client) DoUsuableTest() (bool, error) {
 	return true, nil
 }
 
-func (client *Client) DescribeVpc(r *utils.DescribeVpcRequest) (*utils.Vpc, error) {
+func (client *Client) DescribeVpc(r *types.DescribeVpcRequest) (*types.Vpc, error) {
 	cli, err := client.vpcClient(r.RegionId)
 	if err != nil {
 		return nil, fmt.Errorf("making vpc client: %s", err)
@@ -64,15 +64,16 @@ func (client *Client) DescribeVpc(r *utils.DescribeVpcRequest) (*utils.Vpc, erro
 		return nil, fmt.Errorf("expecting 1 vpc in response, got %d", len(respR.VpcSet))
 	}
 	vpcR := respR.VpcSet[0]
-	vpc := &utils.Vpc{
+	vpc := &types.Vpc{
 		Id:          StringV(vpcR.VpcId),
 		Name:        StringV(vpcR.VpcName),
 		Description: "",
 
-		Provider:   utils.PROVIDER_TENCENTCLOUD,
+		Provider:   types.PROVIDER_TENCENTCLOUD,
 		RegionId:   r.RegionId,
 		Status:     "",
 		CidrBlock:  StringV(vpcR.CidrBlock),
+		VRouterId:  "",
 		VSwitchIds: nil,
 	}
 	if err := vpc.Validate(); err != nil {

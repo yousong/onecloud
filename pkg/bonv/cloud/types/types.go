@@ -1,14 +1,11 @@
-package utils
+package types
 
 // TODO rename package name to cloud
 
 import (
 	"fmt"
-)
 
-const (
-	PROVIDER_ALIYUN       = "aliyun"
-	PROVIDER_TENCENTCLOUD = "tencentcloud"
+	"yunion.io/x/onecloud/pkg/bonv/utils"
 )
 
 type DescribeVpcRequest struct {
@@ -26,11 +23,12 @@ type Vpc struct {
 	RegionId   string
 	Status     string
 	CidrBlock  string
+	VRouterId  string   // TODO aliyun specific
 	VSwitchIds []string // TODO remove this
 }
 
 func (v *Vpc) Validate() error {
-	el := ErrList{}
+	el := utils.ErrList{}
 	if v.Id == "" {
 		el = append(el, fmt.Errorf("Vpc Id must not be empty"))
 	}
@@ -45,9 +43,4 @@ func (v *Vpc) Validate() error {
 		el = append(el, fmt.Errorf("Vpc CidrBlock must not be empty"))
 	}
 	return el.ToError()
-}
-
-type Client interface {
-	DoUsuableTest() (bool, error)
-	DescribeVpc(*DescribeVpcRequest) (*Vpc, error)
 }

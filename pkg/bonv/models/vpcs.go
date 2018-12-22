@@ -17,8 +17,12 @@ type SVpc struct {
 	Name        string `width:"36" charset:"ascii" nullable:"false"`
 	Description string
 
-	CidrBlock string
-	Status    string
+	CidrBlock string `width:"36" charset:"ascii" nullable:"false"`
+	VRouterId string `width:"36" charset:"ascii" nullable:"false"`
+	Status    string `width:"36" charset:"ascii" nullable:"false"`
+
+	AccountId string `width:"36" charset:"ascii" nullable:"false"`
+	IsInfra   bool   `charset:"ascii" nullable:"false"`
 }
 
 type SVpcManager struct {
@@ -53,6 +57,7 @@ func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *util
 				vpc.Name = cloudVpc.Name
 				vpc.Description = cloudVpc.Description
 				vpc.CidrBlock = cloudVpc.CidrBlock
+				vpc.VRouterId = cloudVpc.VRouterId
 				vpc.Status = cloudVpc.Status
 				return nil
 			})
@@ -77,6 +82,7 @@ func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *util
 			Description: cloudVpc.Description,
 
 			CidrBlock: cloudVpc.CidrBlock,
+			VRouterId: cloudVpc.VRouterId,
 			Status:    cloudVpc.Status,
 		}
 		vpc.SetModelManager(VpcManager)
@@ -88,6 +94,48 @@ func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *util
 	}
 }
 
-func (vpc *SVpc) CloudId() string {
+func (vpc *SVpc) UniqId() string {
 	return fmt.Sprintf("%s:vpc:%s", vpc.Provider, vpc.ExternalId)
+}
+
+func (vpc *SVpc) connectInfra(ctx context.Context) error {
+	// TODO move this check to outer
+	if vpc.IsInfra {
+		return fmt.Errorf("infra vpc is not supposed to be initiating connect")
+	}
+	q := VpcManager.Query().
+		Equals("provider", vpc.Provider).
+		IsFalse("is_infra")
+	infraVpcs := []SVpc{}
+	// TODO fetch models
+	ok := false
+	for i := range infraVpcs {
+		infraVpc := &infraVpcs[i]
+		err := VpcConnectManager.createVpcConnect(ctx, vpc, infraVpc)
+		if err != nil {
+			continue
+		}
+		ok = true
+		break
+	}
+	if !ok {
+		// call admin!
+		return fmt.Errorf("tried %d our infra vpc, all unavailable", len(infraVpcs))
+	}
+	return nil
+}
+
+func (vpc *SVpc) toCloudVpc() *utils.Vpc {
+	cloudVpc := &utils.Vpc{
+		Provider:    vpc.Provider,
+		RegionId:    vpc.RegionId,
+		Id:          vpc.ExternalId,
+		Name:        vpc.Name,
+		Description: vpc.Description,
+
+		CidrBlock: vpc.CidrBlock,
+		VRouterId: vpc.VRouterId,
+		Status:    vpc.Status,
+	}
+	return cloudVpc
 }
