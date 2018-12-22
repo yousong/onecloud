@@ -1,11 +1,10 @@
 package models
 
 import (
-	"database/sql"
-
 	"yunion.io/x/pkg/util/stringutils"
 
-	"yunion.io/x/onecloud/pkg/bonv/utils"
+	"yunion.io/x/onecloud/pkg/bonv/cloud"
+	"yunion.io/x/onecloud/pkg/bonv/cloud/types"
 	"yunion.io/x/onecloud/pkg/cloudcommon/db"
 )
 
@@ -32,17 +31,20 @@ func NewResourceBaseManager(dt interface{}, tableName string, keyword string, ke
 }
 
 type SCloudResourceBase struct {
-	IsInfra   bool   ` primary:"true" list:"user"`
+	IsInfra bool ` primary:"true" list:"user"`
+}
+
+type SResourceAccountMixin struct {
 	AccountId string `width:"36" charset:"ascii" nullable:"false"`
 }
 
-func (r *SCloudResourceBase) getClient() (utils.Client, error) {
+func (r *SResourceAccountMixin) getClient() (types.Client, error) {
 	q := CloudAccountManager.Query().Equals("id", r.AccountId)
 	account := &SCloudAccount{}
 	err := q.First(account)
 	if err != nil {
 		return nil, err
 	}
-	client, err := utils.NewClient(account.Provider, account.Account, account.Secret)
+	client, err := cloud.NewClient(account.Provider, account.Account, account.Secret)
 	return client, err
 }

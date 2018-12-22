@@ -2,10 +2,7 @@ package models
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
-
-	"yunion.io/x/onecloud/pkg/bonv/utils"
 )
 
 type SVpcConnect struct {
@@ -33,7 +30,7 @@ func init() {
 	}
 }
 
-func (vpc *SVpcConnect) createVpcConnect(ctx context.Context, vpc, infraVpc *SVpc) error {
+func (man *SVpcConnectManager) createVpcConnect(ctx context.Context, vpc, infraVpc *SVpc) error {
 	q := VpcManager.Query().
 		Equals("vpc_id0", vpc.Id).
 		Equals("vpc_id1", infraVpc.Id)
@@ -42,6 +39,13 @@ func (vpc *SVpcConnect) createVpcConnect(ctx context.Context, vpc, infraVpc *SVp
 	}
 	cloudVpc := vpc.toCloudVpc()
 	cloudInfraVpc := infraVpc.toCloudVpc()
-	client := vpc.getClient()
+	client, err := vpc.getClient()
+	if err != nil {
+		return err
+	}
+	// TODO
+	client = client
+	cloudVpc = cloudVpc
+	cloudInfraVpc = cloudInfraVpc
 	return nil
 }

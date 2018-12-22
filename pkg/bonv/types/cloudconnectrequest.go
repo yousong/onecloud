@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"yunion.io/x/onecloud/pkg/bonv/utils"
-	"yunion.io/x/onecloud/pkg/bonv/utils/aliyun"
-	"yunion.io/x/onecloud/pkg/bonv/utils/qcloud"
+	"yunion.io/x/onecloud/pkg/bonv/cloud/aliyun"
+	"yunion.io/x/onecloud/pkg/bonv/cloud/qcloud"
+	"yunion.io/x/onecloud/pkg/bonv/cloud/types"
 )
 
 const (
@@ -41,8 +41,8 @@ func (req *SCloudConnectRequest) Validate() error {
 }
 
 // 也用于验证参数中账号和Vpc信息是否有效
-func (req *SCloudConnectRequest) GetVpcs(ctx context.Context) ([]*utils.Vpc, error) {
-	vpcs := []*utils.Vpc{}
+func (req *SCloudConnectRequest) GetVpcs(ctx context.Context) ([]*types.Vpc, error) {
+	vpcs := []*types.Vpc{}
 	for i := range req.Vpcs {
 		reqVpc := &req.Vpcs[i]
 		vpc, err := reqVpc.GetVpc()
@@ -59,15 +59,15 @@ type SCloudConnectRequestVpc struct {
 	Vpc     SCloudConnectRequestVpcParams
 }
 
-func (reqVpc *SCloudConnectRequestVpc) GetClient() (client utils.Client, err error) {
+func (reqVpc *SCloudConnectRequestVpc) GetClient() (client types.Client, err error) {
 	account := &reqVpc.Account
 	switch account.Provider {
-	case utils.PROVIDER_ALIYUN:
+	case types.PROVIDER_ALIYUN:
 		client, err = aliyun.NewClient(account.Account, account.Secret)
 		if err != nil {
 			return nil, fmt.Errorf("failed creating aliyun client: %s", err)
 		}
-	case utils.PROVIDER_TENCENTCLOUD:
+	case types.PROVIDER_TENCENTCLOUD:
 		client, err = qcloud.NewClient(account.Account, account.Secret)
 		if err != nil {
 			return nil, fmt.Errorf("failed creating tencentcloud client: %s", err)
@@ -78,13 +78,13 @@ func (reqVpc *SCloudConnectRequestVpc) GetClient() (client utils.Client, err err
 	return client, nil
 }
 
-func (reqVpc *SCloudConnectRequestVpc) GetVpc() (vpc *utils.Vpc, err error) {
+func (reqVpc *SCloudConnectRequestVpc) GetVpc() (vpc *types.Vpc, err error) {
 	client, err := reqVpc.GetClient()
 	if err != nil {
 		return nil, err
 	}
 	vpcParams := &reqVpc.Vpc
-	req := &utils.DescribeVpcRequest{
+	req := &types.DescribeVpcRequest{
 		RegionId: vpcParams.RegionId,
 		VpcId:    vpcParams.VpcId,
 	}

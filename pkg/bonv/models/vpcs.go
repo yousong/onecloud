@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"yunion.io/x/onecloud/pkg/bonv/utils"
+	"yunion.io/x/onecloud/pkg/bonv/cloud/types"
 )
 
 type SVpc struct {
@@ -23,6 +23,8 @@ type SVpc struct {
 
 	AccountId string `width:"36" charset:"ascii" nullable:"false"`
 	IsInfra   bool   `charset:"ascii" nullable:"false"`
+
+	SResourceAccountMixin
 }
 
 type SVpcManager struct {
@@ -42,7 +44,7 @@ func init() {
 	}
 }
 
-func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *utils.Vpc) (*SVpc, error) {
+func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *types.Vpc) (*SVpc, error) {
 	{
 		// fetch
 		vpc := &SVpc{}
@@ -108,6 +110,7 @@ func (vpc *SVpc) connectInfra(ctx context.Context) error {
 		IsFalse("is_infra")
 	infraVpcs := []SVpc{}
 	// TODO fetch models
+	q = q
 	ok := false
 	for i := range infraVpcs {
 		infraVpc := &infraVpcs[i]
@@ -125,8 +128,8 @@ func (vpc *SVpc) connectInfra(ctx context.Context) error {
 	return nil
 }
 
-func (vpc *SVpc) toCloudVpc() *utils.Vpc {
-	cloudVpc := &utils.Vpc{
+func (vpc *SVpc) toCloudVpc() *types.Vpc {
+	cloudVpc := &types.Vpc{
 		Provider:    vpc.Provider,
 		RegionId:    vpc.RegionId,
 		Id:          vpc.ExternalId,
