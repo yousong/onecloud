@@ -11,9 +11,6 @@ import (
 
 const (
 	CLOUD_CONNECT_REQUEST_V1 = "v1"
-
-	PROVIDER_ALIYUN       = "aliyun"
-	PROVIDER_TENCENTCLOUD = "tencentcloud"
 )
 
 // 用户请求参数
@@ -65,12 +62,12 @@ type SCloudConnectRequestVpc struct {
 func (reqVpc *SCloudConnectRequestVpc) GetClient() (client utils.Client, err error) {
 	account := &reqVpc.Account
 	switch account.Provider {
-	case PROVIDER_ALIYUN:
+	case utils.PROVIDER_ALIYUN:
 		client, err = aliyun.NewClient(account.Account, account.Secret)
 		if err != nil {
 			return nil, fmt.Errorf("failed creating aliyun client: %s", err)
 		}
-	case PROVIDER_TENCENTCLOUD:
+	case utils.PROVIDER_TENCENTCLOUD:
 		client, err = qcloud.NewClient(account.Account, account.Secret)
 		if err != nil {
 			return nil, fmt.Errorf("failed creating tencentcloud client: %s", err)

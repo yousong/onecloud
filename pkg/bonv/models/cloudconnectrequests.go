@@ -24,7 +24,7 @@ func HandleNewCloudConnectRequest(ctx context.Context, w http.ResponseWriter, r 
 		return
 	}
 	if err := CloudConnectRequestManager.CreateFromRequest(ctx, req); err != nil {
-		httperrors.GeneralServerError(w, err)
+		httperrors.BadRequestError(w, "%s", err)
 		return
 	}
 	w.Write([]byte("未完待续\n"))
@@ -92,6 +92,13 @@ func (man *SCloudConnectRequestManager) CreateFromRequest(ctx context.Context, r
 		}
 	}
 	{
+		q := man.Query().
+			Equals("vpc_id0", vpcs[0].Id).
+			Equals("vpc_id1", vpcs[1].Id)
+		if q.Count() > 0 {
+			return fmt.Errorf("a connect request between %s and %s already exist", vpcs[0].CloudId(), vpcs[1].CloudId())
+		}
+
 		vpcInfo0 := &req.Vpcs[0]
 		vpcInfo1 := &req.Vpcs[1]
 		connectRequest := &SCloudConnectRequest{

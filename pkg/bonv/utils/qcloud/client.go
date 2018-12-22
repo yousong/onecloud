@@ -68,8 +68,10 @@ func (client *Client) DescribeVpc(r *utils.DescribeVpcRequest) (*utils.Vpc, erro
 		Id:          StringV(vpcR.VpcId),
 		Name:        StringV(vpcR.VpcName),
 		Description: "",
-		Status:      "",
 
+		Provider:   utils.PROVIDER_TENCENTCLOUD,
+		RegionId:   r.RegionId,
+		Status:     "",
 		CidrBlock:  StringV(vpcR.CidrBlock),
 		VSwitchIds: nil,
 	}

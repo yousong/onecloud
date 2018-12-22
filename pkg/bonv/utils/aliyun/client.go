@@ -54,8 +54,10 @@ func (client *Client) DescribeVpc(r *utils.DescribeVpcRequest) (*utils.Vpc, erro
 		Id:          resp.VpcId,
 		Name:        resp.VpcName,
 		Description: resp.Description,
-		Status:      resp.Status,
 
+		Provider:   utils.PROVIDER_ALIYUN,
+		RegionId:   resp.RegionId,
+		Status:     resp.Status,
 		CidrBlock:  resp.CidrBlock,
 		VSwitchIds: resp.VSwitchIds.VSwitchId,
 	}

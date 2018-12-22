@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"yunion.io/x/onecloud/pkg/bonv/utils"
 )
@@ -10,6 +11,8 @@ import (
 type SVpc struct {
 	SResourceBase
 
+	Provider    string `width:"36" charset:"ascii" nullable:"false"`
+	RegionId    string `width:"36" charset:"ascii" nullable:"false"`
 	ExternalId  string `width:"36" charset:"ascii" nullable:"false"`
 	Name        string `width:"36" charset:"ascii" nullable:"false"`
 	Description string
@@ -44,6 +47,8 @@ func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *util
 		if err == nil {
 			// update secret
 			_, err := VpcManager.TableSpec().Update(vpc, func() error {
+				vpc.Provider = cloudVpc.Provider
+				vpc.RegionId = cloudVpc.RegionId
 				vpc.ExternalId = cloudVpc.Id
 				vpc.Name = cloudVpc.Name
 				vpc.Description = cloudVpc.Description
@@ -65,6 +70,8 @@ func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *util
 	{
 		// insert new
 		vpc := &SVpc{
+			Provider:    cloudVpc.Provider,
+			RegionId:    cloudVpc.RegionId,
 			ExternalId:  cloudVpc.Id,
 			Name:        cloudVpc.Name,
 			Description: cloudVpc.Description,
@@ -79,4 +86,8 @@ func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *util
 		}
 		return vpc, nil
 	}
+}
+
+func (vpc *SVpc) CloudId() string {
+	return fmt.Sprintf("%s:vpc:%s", vpc.Provider, vpc.ExternalId)
 }
