@@ -23,31 +23,31 @@ func HandleNewCloudConnectRequest(ctx context.Context, w http.ResponseWriter, r 
 		httperrors.InvalidInputError(w, "validate: %s", err)
 		return
 	}
-	if err := CloudConnectRequestManager.CreateFromRequest(ctx, req); err != nil {
+	if err := CloudConnectManager.CreateFromRequest(ctx, req); err != nil {
 		httperrors.BadRequestError(w, "%s", err)
 		return
 	}
 	w.Write([]byte("未完待续\n"))
 }
 
-type SCloudConnectRequestManager struct {
+type SCloudConnectManager struct {
 	SResourceBaseManager
 }
 
-var CloudConnectRequestManager *SCloudConnectRequestManager
+var CloudConnectManager *SCloudConnectManager
 
 func init() {
-	CloudConnectRequestManager = &SCloudConnectRequestManager{
+	CloudConnectManager = &SCloudConnectManager{
 		SResourceBaseManager: NewResourceBaseManager(
-			SCloudConnectRequest{},
-			"cloud_connect_requests_tbl",
-			"cloud_connect_request",
-			"cloud_connect_requests",
+			SCloudConnect{},
+			"cloud_connects_tbl",
+			"cloud_connect",
+			"cloud_connects",
 		),
 	}
 }
 
-type SCloudConnectRequest struct {
+type SCloudConnect struct {
 	SResourceBase
 
 	Provider0 string `width:"36" charset:"ascii" nullable:"false"`
@@ -58,13 +58,15 @@ type SCloudConnectRequest struct {
 
 	VpcId0 string `width:"36" charset:"ascii" nullable:"false"`
 	VpcId1 string `width:"36" charset:"ascii" nullable:"false"`
+
+	Phase string `width:"36" charset:"ascii" nullable:"false" default:"init"`
 }
 
-func (man *SCloudConnectRequestManager) AllowCreateItem(ctx context.Context, userCred mcclient.TokenCredential, query jsonutils.JSONObject, data jsonutils.JSONObject) bool {
+func (man *SCloudConnectManager) AllowCreateItem(ctx context.Context, userCred mcclient.TokenCredential, query jsonutils.JSONObject, data jsonutils.JSONObject) bool {
 	return false
 }
 
-func (man *SCloudConnectRequestManager) CreateFromRequest(ctx context.Context, req *types.SCloudConnectRequest) error {
+func (man *SCloudConnectManager) CreateFromRequest(ctx context.Context, req *types.SCloudConnectRequest) error {
 	cloudVpcs, err := req.GetVpcs(ctx)
 	if err != nil {
 		return fmt.Errorf("getting vpc: %s", err)
@@ -101,7 +103,7 @@ func (man *SCloudConnectRequestManager) CreateFromRequest(ctx context.Context, r
 
 		vpcInfo0 := &req.Vpcs[0]
 		vpcInfo1 := &req.Vpcs[1]
-		connectRequest := &SCloudConnectRequest{
+		connectRequest := &SCloudConnect{
 			Provider0:  vpcInfo0.Account.Provider,
 			Provider1:  vpcInfo1.Account.Provider,
 			AccountId0: accounts[0].Id,

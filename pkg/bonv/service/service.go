@@ -41,9 +41,9 @@ func StartService() {
 	appName := "bonv"
 	addr := opts.ListenAddress()
 	app := appsrv.NewApplication(appName, opts.WorkerCount)
-	app.AddHandler("POST", "/newcloudconnectrequest", models.HandleNewCloudConnectRequest)
+	app.AddHandler("POST", "/cloudconnectrequest", models.HandleNewCloudConnectRequest)
 	for _, man := range []db.IModelManager{
-		models.CloudConnectRequestManager,
+		models.CloudConnectManager,
 		models.CloudAccountManager,
 		models.VpcManager,
 	} {

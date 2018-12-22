@@ -27,6 +27,9 @@
 TODO
 
  option debug, propagate through to remote rpc
+ secret, before insert, before fetch
+ unify model vpc and types vpc, conversion, validation
+ record request in the table as json
 
 提交参数
 
