@@ -8,12 +8,6 @@ import (
 	"yunion.io/x/onecloud/pkg/bonv/utils"
 )
 
-type DescribeVpcRequest struct {
-	Provider string
-	RegionId string
-	VpcId    string
-}
-
 type Vpc struct {
 	Id          string
 	Name        string

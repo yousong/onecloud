@@ -23,8 +23,8 @@ type SVpc struct {
 	Status    string `width:"36" charset:"ascii" nullable:"false"`
 
 	AccountId string `width:"36" charset:"ascii" nullable:"false"`
-	IsInfra   bool   `charset:"ascii" nullable:"false"`
 
+	SCloudResourceInfraMixin
 	SResourceAccountMixin
 }
 
@@ -111,7 +111,6 @@ func (vpc *SVpc) connectInfra(ctx context.Context) error {
 		Equals("region_id", vpc.RegionId).
 		IsFalse("is_infra")
 	infraVpcs := []SVpc{}
-	// TODO fetch models
 	if err := db.FetchModelObjects(VpcManager, q, &infraVpcs); err != nil {
 		return fmt.Errorf("querying candidate peer vpcs: %s", err)
 	}

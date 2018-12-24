@@ -81,3 +81,8 @@ func (client *Client) DescribeVpc(r *types.DescribeVpcRequest) (*types.Vpc, erro
 	}
 	return vpc, nil
 }
+
+func (client *Client) ConnectVpc(r *types.ConnectVpcRequest) (*types.ConnectVpcResponse, error) {
+	// TODO
+	return nil, nil
+}

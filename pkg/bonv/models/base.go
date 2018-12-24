@@ -30,7 +30,7 @@ func NewResourceBaseManager(dt interface{}, tableName string, keyword string, ke
 	}
 }
 
-type SCloudResourceBase struct {
+type SCloudResourceInfraMixin struct {
 	IsInfra bool ` primary:"true" list:"user"`
 }
 

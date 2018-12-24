@@ -8,5 +8,5 @@ const (
 type Client interface {
 	DoUsuableTest() (bool, error)
 	DescribeVpc(*DescribeVpcRequest) (*Vpc, error)
-	//ConnectVpc(*ConnectVpcRequest) (*ConnectVpcResponse, error)
+	ConnectVpc(*ConnectVpcRequest) (*ConnectVpcResponse, error)
 }
