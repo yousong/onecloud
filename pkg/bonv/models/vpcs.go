@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"yunion.io/x/onecloud/pkg/bonv/cloud/types"
+	"yunion.io/x/onecloud/pkg/cloudcommon/db"
 )
 
 type SVpc struct {
@@ -107,10 +108,13 @@ func (vpc *SVpc) connectInfra(ctx context.Context) error {
 	}
 	q := VpcManager.Query().
 		Equals("provider", vpc.Provider).
+		Equals("region_id", vpc.RegionId).
 		IsFalse("is_infra")
 	infraVpcs := []SVpc{}
 	// TODO fetch models
-	q = q
+	if err := db.FetchModelObjects(VpcManager, q, &infraVpcs); err != nil {
+		return fmt.Errorf("querying candidate peer vpcs: %s", err)
+	}
 	ok := false
 	for i := range infraVpcs {
 		infraVpc := &infraVpcs[i]
@@ -122,7 +126,7 @@ func (vpc *SVpc) connectInfra(ctx context.Context) error {
 		break
 	}
 	if !ok {
-		// call admin!
+		// call site admin!
 		return fmt.Errorf("tried %d our infra vpc, all unavailable", len(infraVpcs))
 	}
 	return nil

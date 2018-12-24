@@ -43,9 +43,14 @@ func (man *SVpcConnectManager) createVpcConnect(ctx context.Context, vpc, infraV
 	if err != nil {
 		return err
 	}
-	// TODO
-	client = client
+	infraClient, err := infraVpc.getClient()
+	if err != nil {
+		return err
+	}
+	//
 	cloudVpc = cloudVpc
 	cloudInfraVpc = cloudInfraVpc
+	client = client
+	infraClient = infraClient
 	return nil
 }
