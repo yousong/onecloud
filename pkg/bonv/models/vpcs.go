@@ -25,8 +25,6 @@ type SVpc struct {
 	VRouterId string `width:"36" charset:"ascii" nullable:"false"`
 	Status    string `width:"36" charset:"ascii" nullable:"false"`
 
-	AccountId string `width:"36" charset:"ascii" nullable:"false"`
-
 	SCloudResourceInfraMixin
 	SResourceAccountMixin
 }

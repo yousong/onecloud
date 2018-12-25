@@ -120,6 +120,14 @@ func (man *SCloudConnectManager) CreateFromRequest(ctx context.Context, req *typ
 	return nil
 }
 
+func (cn *SCloudConnect) AllowPerformConnectInfra(ctx context.Context, userCred mcclient.TokenCredential, query jsonutils.JSONObject, data jsonutils.JSONObject) bool {
+	return true
+}
+
+func (cn *SCloudConnect) PerformConnectInfra(ctx context.Context, userCred mcclient.TokenCredential, query jsonutils.JSONObject, data *jsonutils.JSONDict) (*jsonutils.JSONDict, error) {
+	return nil, cn.connectInfra(ctx)
+}
+
 func (cn *SCloudConnect) connectInfra(ctx context.Context) error {
 	doConnect := func(vpcId string) error {
 		m, err := VpcManager.FetchById(vpcId)
@@ -138,5 +146,6 @@ func (cn *SCloudConnect) connectInfra(ctx context.Context) error {
 	if err := doConnect(cn.VpcId1); err != nil {
 		return err
 	}
+	// TODO, return two vpc connects
 	return nil
 }
