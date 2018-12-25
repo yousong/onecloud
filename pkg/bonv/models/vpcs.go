@@ -46,7 +46,7 @@ func init() {
 	}
 }
 
-func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *types.Vpc) (*SVpc, error) {
+func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *types.Vpc, account *SCloudAccount) (*SVpc, error) {
 	{
 		// fetch
 		vpc := &SVpc{}
@@ -63,6 +63,7 @@ func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *type
 				vpc.CidrBlock = cloudVpc.CidrBlock
 				vpc.VRouterId = cloudVpc.VRouterId
 				vpc.Status = cloudVpc.Status
+				vpc.AccountId = account.Id
 				return nil
 			})
 			if err != nil {
@@ -88,6 +89,9 @@ func (man *SVpcManager) UpdateOrNewFromCloud(ctx context.Context, cloudVpc *type
 			CidrBlock: cloudVpc.CidrBlock,
 			VRouterId: cloudVpc.VRouterId,
 			Status:    cloudVpc.Status,
+			SResourceAccountMixin: SResourceAccountMixin{
+				AccountId: account.Id,
+			},
 		}
 		vpc.SetModelManager(VpcManager)
 		err := VpcManager.TableSpec().Insert(vpc)

@@ -86,7 +86,7 @@ func (man *SCloudConnectManager) CreateFromRequest(ctx context.Context, req *typ
 		}
 		{
 			cloudVpc := cloudVpcs[i]
-			vpc, err := VpcManager.UpdateOrNewFromCloud(ctx, cloudVpc)
+			vpc, err := VpcManager.UpdateOrNewFromCloud(ctx, cloudVpc, accounts[i])
 			if err != nil {
 				return fmt.Errorf("updating vpc index %d: %s", i, err)
 			}
