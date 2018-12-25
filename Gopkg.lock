@@ -87,7 +87,7 @@
   version = "v1.20.0"
 
 [[projects]]
-  digest = "1:8c3176921eb3a8c3b9cadd2bbb2e8e39f62a99ee2e0965074a857868cc18a10b"
+  digest = "1:7e3301ce33fe6eed8d8695f176852faca820cc8e1b13c5b972e0afd0eaff60d1"
   name = "github.com/aliyun/alibaba-cloud-sdk-go"
   packages = [
     "sdk",
@@ -99,6 +99,8 @@
     "sdk/requests",
     "sdk/responses",
     "sdk/utils",
+    "services/ecs",
+    "services/vpc",
   ]
   pruneopts = "UT"
   revision = "b5829a0278c8baab736adb4fae7b3d2e79160871"
@@ -1433,8 +1435,11 @@
     "github.com/Microsoft/azure-vhd-utils/vhdcore/footer",
     "github.com/Microsoft/azure-vhd-utils/vhdcore/validator",
     "github.com/aliyun/alibaba-cloud-sdk-go/sdk",
+    "github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials",
     "github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests",
     "github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses",
+    "github.com/aliyun/alibaba-cloud-sdk-go/services/ecs",
+    "github.com/aliyun/alibaba-cloud-sdk-go/services/vpc",
     "github.com/aliyun/aliyun-oss-go-sdk/oss",
     "github.com/aokoli/goutils",
     "github.com/aws/aws-sdk-go/aws",
@@ -1503,6 +1508,7 @@
     "github.com/vmware/govmomi/vim25/mo",
     "github.com/vmware/govmomi/vim25/types",
     "golang.org/x/crypto/ssh",
+    "golang.org/x/sys/unix",
     "gopkg.in/gin-gonic/gin.v1",
     "k8s.io/api/core/v1",
     "k8s.io/apimachinery/pkg/api/errors",
