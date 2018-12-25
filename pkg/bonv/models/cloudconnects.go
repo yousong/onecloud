@@ -119,3 +119,24 @@ func (man *SCloudConnectManager) CreateFromRequest(ctx context.Context, req *typ
 	}
 	return nil
 }
+
+func (cn *SCloudConnect) connectInfra(ctx context.Context) error {
+	doConnect := func(vpcId string) error {
+		m, err := VpcManager.FetchById(vpcId)
+		if err != nil {
+			return fmt.Errorf("cannot find vpc %s", vpcId)
+		}
+		vpc := m.(*SVpc)
+		if err := vpc.connectInfra(ctx); err != nil {
+			return err
+		}
+		return nil
+	}
+	if err := doConnect(cn.VpcId0); err != nil {
+		return err
+	}
+	if err := doConnect(cn.VpcId1); err != nil {
+		return err
+	}
+	return nil
+}

@@ -39,6 +39,7 @@ func (man *SVpcConnectManager) createVpcConnect(ctx context.Context, vpc, infraV
 		return fmt.Errorf("vpc connect can only happen with in the same provider, got %s and %s", vpc.UniqId(), infraVpc.UniqId())
 	}
 	q := VpcManager.Query().
+		Equals("provider", vpc.Provider).
 		Equals("vpc_id0", vpc.Id).
 		Equals("vpc_id1", infraVpc.Id)
 	if q.Count() > 0 {
@@ -76,4 +77,8 @@ func (man *SVpcConnectManager) createVpcConnect(ctx context.Context, vpc, infraV
 		}
 	}
 	return nil
+}
+
+func (vc *SVpcConnect) UniqId() string {
+	return fmt.Sprintf("%s:vpcconnect:%s:%s", vc.Provider, vc.VpcId0, vc.VpcId1)
 }

@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"yunion.io/x/log"
+	"yunion.io/x/sqlchemy"
+
 	"yunion.io/x/onecloud/pkg/bonv/cloud/types"
 	"yunion.io/x/onecloud/pkg/cloudcommon/db"
 )
@@ -101,11 +104,24 @@ func (vpc *SVpc) UniqId() string {
 	return fmt.Sprintf("%s:vpc:%s", vpc.Provider, vpc.ExternalId)
 }
 
+// 允许幂等操作，若已连接，不做操作，返回连接成功
 func (vpc *SVpc) connectInfra(ctx context.Context) error {
 	// TODO move this check to outer
 	if vpc.IsInfra {
 		return fmt.Errorf("infra vpc is not supposed to be initiating connect")
 	}
+	if maybe, vc, err := vpc.maybeConnected(ctx); maybe {
+		if vc != nil {
+			log.Warningf("vpc %s is already connected: %s", vpc.UniqId(), vc.UniqId())
+			return nil
+		} else {
+			return err
+		}
+	}
+	return vpc.connectInfra_(ctx)
+}
+
+func (vpc *SVpc) connectInfra_(ctx context.Context) error {
 	q := VpcManager.Query().
 		Equals("provider", vpc.Provider).
 		Equals("region_id", vpc.RegionId).
@@ -129,6 +145,25 @@ func (vpc *SVpc) connectInfra(ctx context.Context) error {
 		return fmt.Errorf("tried %d our infra vpc, all unavailable", len(infraVpcs))
 	}
 	return nil
+}
+
+func (vpc *SVpc) maybeConnected(ctx context.Context) (bool, *SVpcConnect, error) {
+	q := VpcManager.Query()
+	q = q.Equals("provider", vpc.Provider).
+		Filter(sqlchemy.OR(
+			sqlchemy.Equals(q.Field("vpc_id0"), vpc.Id),
+			sqlchemy.Equals(q.Field("vpc_id1"), vpc.Id),
+		))
+	vc := &SVpcConnect{}
+	vc.SetModelManager(VpcConnectManager)
+	err := q.First(vc)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil, nil
+		}
+		return true, nil, fmt.Errorf("maybe connected: %s", err)
+	}
+	return true, vc, nil
 }
 
 func (vpc *SVpc) toCloudVpc() *types.Vpc {
