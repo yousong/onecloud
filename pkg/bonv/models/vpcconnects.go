@@ -38,7 +38,7 @@ func (man *SVpcConnectManager) createVpcConnect(ctx context.Context, vpc, infraV
 	if vpc.Provider != infraVpc.Provider {
 		return fmt.Errorf("vpc connect can only happen with in the same provider, got %s and %s", vpc.UniqId(), infraVpc.UniqId())
 	}
-	q := VpcManager.Query().
+	q := VpcConnectManager.Query().
 		Equals("provider", vpc.Provider).
 		Equals("vpc_id0", vpc.Id).
 		Equals("vpc_id1", infraVpc.Id)

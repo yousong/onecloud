@@ -45,6 +45,7 @@ func StartService() {
 		DBOptions: cloudcommon.DBOptions{
 			SqlConnection: "mysql+pymysql://bonv:kQnCdKE49cM=@10.168.222.136:3306/bonv?charset=utf8",
 			AutoSyncTable: true,
+			DebugSqlchemy: true,
 		},
 	}
 	commonOpts := &opts.CommonOptions

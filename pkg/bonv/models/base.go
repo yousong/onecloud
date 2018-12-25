@@ -2,6 +2,7 @@ package models
 
 import (
 	"yunion.io/x/pkg/util/stringutils"
+	"yunion.io/x/sqlchemy"
 
 	"yunion.io/x/onecloud/pkg/bonv/cloud"
 	"yunion.io/x/onecloud/pkg/bonv/cloud/types"
@@ -28,6 +29,22 @@ func NewResourceBaseManager(dt interface{}, tableName string, keyword string, ke
 	return SResourceBaseManager{
 		db.NewResourceBaseManager(dt, tableName, keyword, keywordPlural),
 	}
+}
+
+func (man *SResourceBaseManager) FetchById(id string) (db.IModel, error) {
+	return db.FetchById(man, id)
+}
+
+func (man *SResourceBaseManager) FilterById(q *sqlchemy.SQuery, id string) *sqlchemy.SQuery {
+	return q.Equals("id", id)
+}
+
+func (man *SResourceBaseManager) FilterByNotId(q *sqlchemy.SQuery, id string) *sqlchemy.SQuery {
+	return q.NotEquals("id", id)
+}
+
+func (man *SResourceBaseManager) FilterByName(q *sqlchemy.SQuery, name string) *sqlchemy.SQuery {
+	return q.Equals("name", name)
 }
 
 type SCloudResourceInfraMixin struct {

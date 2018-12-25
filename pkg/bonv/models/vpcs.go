@@ -123,7 +123,7 @@ func (vpc *SVpc) connectInfra_(ctx context.Context) error {
 	q := VpcManager.Query().
 		Equals("provider", vpc.Provider).
 		Equals("region_id", vpc.RegionId).
-		IsFalse("is_infra")
+		IsTrue("is_infra")
 	infraVpcs := []SVpc{}
 	if err := db.FetchModelObjects(VpcManager, q, &infraVpcs); err != nil {
 		return fmt.Errorf("querying candidate peer vpcs: %s", err)
@@ -140,13 +140,13 @@ func (vpc *SVpc) connectInfra_(ctx context.Context) error {
 	}
 	if !ok {
 		// call site admin!
-		return fmt.Errorf("tried %d our infra vpc, all unavailable", len(infraVpcs))
+		return fmt.Errorf("tried %d of our infra vpcs, all unavailable", len(infraVpcs))
 	}
 	return nil
 }
 
 func (vpc *SVpc) maybeConnected(ctx context.Context) (bool, *SVpcConnect, error) {
-	q := VpcManager.Query()
+	q := VpcConnectManager.Query()
 	q = q.Equals("provider", vpc.Provider).
 		Filter(sqlchemy.OR(
 			sqlchemy.Equals(q.Field("vpc_id0"), vpc.Id),
