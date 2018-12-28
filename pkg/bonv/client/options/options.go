@@ -17,3 +17,12 @@ type BonvRequestOptions struct {
 	VpcA BonvRequestVpcOptions
 	VpcB BonvRequestVpcOptions
 }
+
+type VpcImportOptions struct {
+	Provider string
+	Account  string
+	IsInfra  *bool
+
+	RegionId string
+	VpcId    string
+}
