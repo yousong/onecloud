@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -74,16 +75,24 @@ func die(err error) {
 	os.Exit(1)
 }
 
-func newClientSession() (*mcclient.ClientSession, error) {
-	client := mcclient.NewClient()
+func newClientSession() *mcclient.ClientSession {
+	client := mcclient.NewClient(
+		opts.OsAuthURL,
+		30,    // timeout
+		false, // debug
+		true,  // insecure
+		"",    // cert
+		"",    //key
+	)
 	session := client.NewSession(
 		context.Background(),
-		options.OsRegionName,
-		options.OsZoneName,
-		options.OsEndpointType,
-		cacheToken,
-		options.ApiVersion)
-	return session, nil
+		opts.OsRegionName,
+		opts.OsZoneName,
+		opts.OsEndpointType,
+		nil, // cache token
+		"",  // api version
+	)
+	return session
 }
 
 func main() {
