@@ -51,31 +51,33 @@ func (self *VpcDeleteTask) OnInit(ctx context.Context, obj db.IStandaloneModel, 
 	vpc.SetStatus(self.UserCred, api.VPC_STATUS_DELETING, "")
 	db.OpsLog.LogEvent(vpc, db.ACT_DELOCATING, vpc.GetShortDesc(ctx), self.UserCred)
 
-	region, err := vpc.GetIRegion()
-	if err != nil {
-		self.taskFailed(ctx, vpc, err)
-		return
-	}
-	ivpc, err := region.GetIVpcById(vpc.GetExternalId())
-	if ivpc != nil {
-		err = ivpc.Delete()
+	if vpc.Id != api.DEFAULT_VPC_ID {
+		region, err := vpc.GetIRegion()
 		if err != nil {
 			self.taskFailed(ctx, vpc, err)
 			return
 		}
-		err = cloudprovider.WaitDeleted(ivpc, 10*time.Second, 300*time.Second)
-		if err != nil {
+		ivpc, err := region.GetIVpcById(vpc.GetExternalId())
+		if ivpc != nil {
+			err = ivpc.Delete()
+			if err != nil {
+				self.taskFailed(ctx, vpc, err)
+				return
+			}
+			err = cloudprovider.WaitDeleted(ivpc, 10*time.Second, 300*time.Second)
+			if err != nil {
+				self.taskFailed(ctx, vpc, err)
+				return
+			}
+		} else if err == cloudprovider.ErrNotFound {
+			// already deleted, do nothing
+		} else {
 			self.taskFailed(ctx, vpc, err)
 			return
 		}
-	} else if err == cloudprovider.ErrNotFound {
-		// already deleted, do nothing
-	} else {
-		self.taskFailed(ctx, vpc, err)
-		return
 	}
 
-	err = vpc.Purge(ctx, self.UserCred)
+	err := vpc.Purge(ctx, self.UserCred)
 	if err != nil {
 		self.taskFailed(ctx, vpc, err)
 		return
