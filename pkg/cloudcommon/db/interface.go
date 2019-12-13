@@ -131,6 +131,9 @@ type IModel interface {
 	object.IObject
 
 	GetName() string
+	GetUpdateVersion() int
+	GetUpdatedAt() time.Time
+	GetDeleted() bool
 
 	KeywordPlural() string
 
@@ -259,7 +262,7 @@ type IStandaloneModel interface {
 }
 
 type IMetadataModel interface {
-	IStandaloneModel
+	IResourceModel
 
 	GetAllMetadata(userCred mcclient.TokenCredential) (map[string]string, error)
 	GetMetadataHideKeys() []string
@@ -274,6 +277,7 @@ type IVirtualModelManager interface {
 
 type IVirtualModel interface {
 	IStandaloneModel
+	IPendingDeletable
 
 	IsOwner(userCred mcclient.TokenCredential) bool
 	// IsAdmin(userCred mcclient.TokenCredential) bool

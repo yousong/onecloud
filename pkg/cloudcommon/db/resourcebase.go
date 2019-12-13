@@ -120,3 +120,15 @@ func (manager *SResourceBaseManager) ValidateCreateData(ctx context.Context, use
 	}
 	return input, nil
 }
+
+func (model *SResourceBase) GetUpdateVersion() int {
+	return model.UpdateVersion
+}
+
+func (model *SResourceBase) GetUpdatedAt() time.Time {
+	return model.UpdatedAt
+}
+
+func (model *SResourceBase) GetDeleted() bool {
+	return model.Deleted
+}
