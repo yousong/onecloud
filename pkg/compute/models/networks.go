@@ -1319,19 +1319,8 @@ func (manager *SNetworkManager) ValidateCreateData(ctx context.Context, userCred
 		return input, httperrors.NewInvalidStatusError("VPC not ready")
 	}
 
-	vpcRanges := vpc.getIPRanges()
-
 	netRange := netutils.NewIPV4AddrRange(startIp, endIp)
-
-	inRange := false
-	for _, vpcRange := range vpcRanges {
-		if vpcRange.ContainsRange(netRange) {
-			inRange = true
-			break
-		}
-	}
-
-	if !inRange {
+	if !vpc.containsIPV4Range(netRange) {
 		return input, httperrors.NewInputParameterError("Network not in range of VPC cidrblock %s", vpc.CidrBlock)
 	}
 
@@ -1392,21 +1381,9 @@ func (self *SNetwork) ValidateUpdateData(ctx context.Context, userCred mcclient.
 			return nil, httperrors.NewInputParameterError("Conflict address space with existing networks")
 		}
 
-		vpc := self.GetVpc()
-
-		vpcRanges := vpc.getIPRanges()
-
 		netRange := netutils.NewIPV4AddrRange(startIp, endIp)
-
-		inRange := false
-		for _, vpcRange := range vpcRanges {
-			if vpcRange.ContainsRange(netRange) {
-				inRange = true
-				break
-			}
-		}
-
-		if !inRange {
+		vpc := self.GetVpc()
+		if !vpc.containsIPV4Range(netRange) {
 			return nil, httperrors.NewInputParameterError("Network not in range of VPC cidrblock %s", vpc.CidrBlock)
 		}
 
