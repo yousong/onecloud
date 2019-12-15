@@ -339,11 +339,11 @@ func (h *SHostInfo) detectHostInfo() error {
 	h.detectKvmModuleSupport()
 	h.detectNestSupport()
 
-	if err := h.detectiveSyssoftwareInfo(); err != nil {
+	if err := h.detectSyssoftwareInfo(); err != nil {
 		return err
 	}
 
-	h.detectiveStorageSystem()
+	h.detectStorageSystem()
 
 	if options.HostOptions.CheckSystemServices {
 		if err := h.checkSystemServices(); err != nil {
@@ -372,7 +372,7 @@ func (h *SHostInfo) checkSystemServices() error {
 	return nil
 }
 
-func (h *SHostInfo) detectiveStorageSystem() {
+func (h *SHostInfo) detectStorageSystem() {
 	var stype = api.DISK_TYPE_ROTATE
 	if options.HostOptions.DiskIsSsd {
 		stype = api.DISK_TYPE_SSD
@@ -502,7 +502,7 @@ func (h *SHostInfo) detectNestSupport() {
 	}
 }
 
-func (h *SHostInfo) detectiveOsDist() {
+func (h *SHostInfo) detectOsDist() {
 	files, err := procutils.NewCommand("sh", "-c", "ls /etc/*elease").Output()
 	if err != nil {
 		log.Errorln(err)
@@ -521,13 +521,13 @@ func (h *SHostInfo) detectiveOsDist() {
 			break
 		}
 	}
-	log.Infof("DetectiveOsDist %s %s", h.sysinfo.OsDistribution, h.sysinfo.OsVersion)
+	log.Infof("DetectOsDist %s %s", h.sysinfo.OsDistribution, h.sysinfo.OsVersion)
 	if len(h.sysinfo.OsDistribution) == 0 {
 		log.Errorln("Failed to detect distribution info")
 	}
 }
 
-func (h *SHostInfo) detectiveKernelVersion() {
+func (h *SHostInfo) detectKernelVersion() {
 	out, err := procutils.NewCommand("uname", "-r").Output()
 	if err != nil {
 		log.Errorln(err)
@@ -535,17 +535,17 @@ func (h *SHostInfo) detectiveKernelVersion() {
 	h.sysinfo.KernelVersion = strings.TrimSpace(string(out))
 }
 
-func (h *SHostInfo) detectiveSyssoftwareInfo() error {
-	h.detectiveOsDist()
-	h.detectiveKernelVersion()
-	if err := h.detectiveQemuVersion(); err != nil {
+func (h *SHostInfo) detectSyssoftwareInfo() error {
+	h.detectOsDist()
+	h.detectKernelVersion()
+	if err := h.detectQemuVersion(); err != nil {
 		return err
 	}
-	h.detectiveOvsVersion()
+	h.detectOvsVersion()
 	return nil
 }
 
-func (h *SHostInfo) detectiveQemuVersion() error {
+func (h *SHostInfo) detectQemuVersion() error {
 	cmd := qemutils.GetQemu(options.HostOptions.DefaultQemuVersion)
 	version, err := procutils.NewRemoteCommandAsFarAsPossible(cmd, "--version").Output()
 	if err != nil {
@@ -565,7 +565,7 @@ func (h *SHostInfo) detectiveQemuVersion() error {
 	return nil
 }
 
-func (h *SHostInfo) detectiveOvsVersion() {
+func (h *SHostInfo) detectOvsVersion() {
 	version, err := procutils.NewCommand("ovs-vsctl", "--version").Output()
 	if err != nil {
 		log.Errorln(err)
