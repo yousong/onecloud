@@ -32,3 +32,7 @@ const (
 	DEFAULT_VPC_ID = "default"
 	NORMAL_VPC_ID  = "normal" // 没有关联VPC的安全组，统一使用normal
 )
+
+const (
+	VPC_PROVIDER_OVN = "ovn"
+)
