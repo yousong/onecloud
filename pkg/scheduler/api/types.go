@@ -100,6 +100,7 @@ type CandidateStorage struct {
 
 type CandidateNetwork struct {
 	*models.SNetwork
+	VpcId     string
 	Schedtags []models.SSchedtag `json:"schedtags"`
 }
 
