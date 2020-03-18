@@ -33,6 +33,7 @@ import (
 	"yunion.io/x/sqlchemy"
 
 	"yunion.io/x/onecloud/pkg/apis"
+	//"yunion.io/x/onecloud/pkg/cloudcommon/db/proxy"
 	api "yunion.io/x/onecloud/pkg/apis/compute"
 	"yunion.io/x/onecloud/pkg/cloudcommon/consts"
 	"yunion.io/x/onecloud/pkg/cloudcommon/db"
@@ -149,6 +150,8 @@ type SCloudaccount struct {
 	IsPublic bool `default:"false" nullable:"false"`
 	// add share_mode field to indicate the share range of this account
 	ShareMode string `width:"32" charset:"ascii" nullable:"true" list:"domain"`
+
+	ProxySettingId string `width:"36" charset:"ascii" nullable:"false" list:"user" create:"optional" default:"default"`
 }
 
 func (self *SCloudaccount) GetCloudproviders() []SCloudprovider {
@@ -343,7 +346,12 @@ func (manager *SCloudaccountManager) ValidateCreateData(ctx context.Context, use
 		return input, httperrors.NewConflictError("The account has been registered")
 	}
 
-	accountId, err := cloudprovider.IsValidCloudAccount(input.AccessUrl, input.Account, input.Secret, input.Provider)
+	accountId, err := cloudprovider.IsValidCloudAccount(cloudprovider.ProviderConfig{
+		Vendor:  input.Provider,
+		URL:     input.AccessUrl,
+		Account: input.Account,
+		Secret:  input.Secret,
+	})
 	if err != nil {
 		if err == cloudprovider.ErrNoSuchProvder {
 			return input, httperrors.NewResourceNotFoundError("no such provider %s", input.Provider)
@@ -470,7 +478,12 @@ func (self *SCloudaccount) PerformTestConnectivity(ctx context.Context, userCred
 		return nil, err
 	}
 
-	_, err = cloudprovider.IsValidCloudAccount(self.AccessUrl, account.Account, account.Secret, self.Provider)
+	_, err = cloudprovider.IsValidCloudAccount(cloudprovider.ProviderConfig{
+		URL:     self.AccessUrl,
+		Vendor:  self.Provider,
+		Account: account.Account,
+		Secret:  account.Secret,
+	})
 	if err != nil {
 		return nil, httperrors.NewInputParameterError("invalid cloud account info error: %s", err.Error())
 	}
@@ -521,7 +534,12 @@ func (self *SCloudaccount) PerformUpdateCredential(ctx context.Context, userCred
 
 	originSecret, _ := self.getPassword()
 
-	accountId, err := cloudprovider.IsValidCloudAccount(self.AccessUrl, account.Account, account.Secret, self.Provider)
+	accountId, err := cloudprovider.IsValidCloudAccount(cloudprovider.ProviderConfig{
+		Vendor:  self.Provider,
+		URL:     self.AccessUrl,
+		Account: account.Account,
+		Secret:  account.Secret,
+	})
 	if err != nil {
 		return nil, httperrors.NewInputParameterError("invalid cloud account info error: %s", err.Error())
 	}
@@ -678,7 +696,14 @@ func (self *SCloudaccount) getProviderInternal() (cloudprovider.ICloudProvider, 
 	if err != nil {
 		return nil, fmt.Errorf("Invalid password %s", err)
 	}
-	return cloudprovider.GetProvider(self.Id, self.Name, self.AccessUrl, self.Account, secret, self.Provider)
+	return cloudprovider.GetProvider(cloudprovider.ProviderConfig{
+		Id:      self.Id,
+		Name:    self.Name,
+		Vendor:  self.Provider,
+		URL:     self.AccessUrl,
+		Account: self.Account,
+		Secret:  secret,
+	})
 }
 
 func (self *SCloudaccount) GetSubAccounts() ([]cloudprovider.SSubAccount, error) {
