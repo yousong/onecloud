@@ -1069,6 +1069,21 @@ func NewModelObject(modelManager IModelManager) (IModel, error) {
 	return m, nil
 }
 
+func PoolModelObjectGet(modelManager IModelManager) (IModel, error) {
+	// It's okay we do not return it back should error happen: let GC
+	// handle it
+	m, ok := modelManager.TableSpec().DataPoolGet().(IModel)
+	if !ok {
+		return nil, ErrInconsistentDataType
+	}
+	m.SetModelManager(modelManager, m)
+	return m, nil
+}
+
+func PoolModelObjectPut(modelManager IModelManager, m interface{}) {
+	modelManager.TableSpec().DataPoolPut(m)
+}
+
 func FetchModelObjects(modelManager IModelManager, query *sqlchemy.SQuery, targets interface{}) error {
 	rows, err := query.Rows()
 	if err != nil {

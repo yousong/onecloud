@@ -32,6 +32,8 @@ type ITableSpec interface {
 	Columns() []sqlchemy.IColumnSpec
 	PrimaryColumns() []sqlchemy.IColumnSpec
 	DataType() reflect.Type
+	DataPoolGet() interface{}
+	DataPoolPut(interface{})
 	CreateSQL() string
 	Instance() *sqlchemy.STable
 	ColumnSpec(name string) sqlchemy.IColumnSpec
