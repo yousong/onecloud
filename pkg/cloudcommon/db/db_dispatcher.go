@@ -351,8 +351,10 @@ func Query2List(manager IModelManager, ctx context.Context, userCred mcclient.To
 	} else {
 		showDetails = true
 	}
-	items := make([]interface{}, 0)
-	extraResults := make([]*jsonutils.JSONDict, 0)
+	var (
+		items        []interface{}
+		extraResults []*jsonutils.JSONDict
+	)
 	rows, err := q.Rows()
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
@@ -365,8 +367,15 @@ func Query2List(manager IModelManager, ctx context.Context, userCred mcclient.To
 		exportKeys = stringutils2.NewSortedStrings(strings.Split(exportKeyStr, ","))
 	}
 
+	defer func() {
+		for _, m := range items {
+			if m != nil {
+				PoolModelObjectPut(manager, m)
+			}
+		}
+	}()
 	for rows.Next() {
-		item, err := NewModelObject(manager)
+		item, err := PoolModelObjectGet(manager)
 		if err != nil {
 			return nil, err
 		}
