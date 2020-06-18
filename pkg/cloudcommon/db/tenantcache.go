@@ -326,7 +326,11 @@ func (manager *STenantCacheManager) Save(ctx context.Context, idStr string, name
 			return obj, nil
 		}
 	} else {
-		objm, err := NewModelObject(manager)
+		objm, err := PoolModelObjectGet(manager)
+		if err != nil {
+			return nil, errors.Wrap(err, "PoolModelObjectGet")
+		}
+		defer PoolModelObjectPut(objm)
 		obj := objm.(*STenant)
 		obj.Id = idStr
 		obj.Name = name
