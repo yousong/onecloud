@@ -53,12 +53,12 @@ func NewHTTPReverseProxy(ef *SEndpointFactory) *SReverseProxy {
 func (p *SReverseProxy) ServeHTTP(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	endpoint, err := p.generator(ctx, w, r)
 	if err != nil {
-		httperrors.InternalServerError(w, "%v", err)
+		httperrors.InternalServerError(httperrors.WithRequestLang(ctx, r), w, "%v", err)
 		return
 	}
 	remoteUrl, err := url.Parse(endpoint)
 	if err != nil {
-		httperrors.InternalServerError(w, "failed parsing url %q: %v", endpoint, err)
+		httperrors.InternalServerError(httperrors.WithRequestLang(ctx, r), w, "failed parsing url %q: %v", endpoint, err)
 		return
 	}
 	log.Debugf("Forwarding to servie: %q, url: %q", p.serviceName, remoteUrl.String())

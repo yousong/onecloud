@@ -36,13 +36,13 @@ func s3authenticate(f appsrv.FilterHandler) appsrv.FilterHandler {
 
 		o, err := getObjectRequest(r)
 		if err != nil {
-			SendError(w, BadRequest(ctx, err.Error()))
+			SendError(ctx, w, BadRequest(ctx, err.Error()))
 			return
 		}
 		ctx = context.WithValue(ctx, S3_OBJECT_REQUEST, o)
 		userCred, err := auth.VerifyRequest(*r, o.VirtualHost)
 		if err != nil {
-			SendError(w, Unauthenticated(ctx, err.Error()))
+			SendError(ctx, w, Unauthenticated(ctx, err.Error()))
 			return
 		}
 		ctx = context.WithValue(ctx, auth.AUTH_TOKEN, userCred)

@@ -140,7 +140,7 @@ func parseRange(reqRange string) (int64, int64, error) {
 func closeImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	imagePath, err := inputCheck(ctx)
 	if err != nil {
-		httperrors.GeneralServerError(w, err)
+		httperrors.GeneralServerError(ctx, w, err)
 		return
 	}
 
@@ -152,7 +152,7 @@ func closeImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	}
 	err = f.Load(imagePath, true)
 	if err != nil {
-		httperrors.GeneralServerError(w, err)
+		httperrors.GeneralServerError(ctx, w, err)
 	}
 	f.Close()
 	w.WriteHeader(http.StatusOK)
@@ -161,7 +161,7 @@ func closeImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 func getImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	imagePath, err := inputCheck(ctx)
 	if err != nil {
-		httperrors.GeneralServerError(w, err)
+		httperrors.GeneralServerError(ctx, w, err)
 		return
 	}
 
@@ -176,7 +176,7 @@ func getImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	}
 	if err = f.Open(imagePath, true); err != nil {
 		log.Errorf("Open image error: %s", err)
-		httperrors.GeneralServerError(w, err)
+		httperrors.GeneralServerError(ctx, w, err)
 		return
 	}
 	defer f.Close()
@@ -187,7 +187,7 @@ func getImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		startPos, endPos, err = parseRange(reqRange)
 		if err != nil {
 			log.Errorf("Parse range error: %s", err)
-			httperrors.GeneralServerError(w, err)
+			httperrors.GeneralServerError(ctx, w, err)
 			return
 		}
 	}
@@ -197,7 +197,7 @@ func getImage(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		rateLimit, err = strconv.ParseInt(strRateLimit, 10, 0)
 		if err != nil {
 			log.Errorf("Parse ratelimit error: %s", err)
-			httperrors.InvalidInputError(w, "Invaild rate limit header")
+			httperrors.InvalidInputError(ctx, w, "Invaild rate limit header")
 			return
 		}
 	}
@@ -259,7 +259,7 @@ fail:
 func getImageMeta(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	imagePath, err := inputCheck(ctx)
 	if err != nil {
-		httperrors.GeneralServerError(w, err)
+		httperrors.GeneralServerError(ctx, w, err)
 		return
 	}
 
@@ -270,7 +270,7 @@ func getImageMeta(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		f = &SQcow2Image{}
 	}
 	if err = f.Open(imagePath, true); err != nil {
-		httperrors.GeneralServerError(w, err)
+		httperrors.GeneralServerError(ctx, w, err)
 		return
 	}
 
