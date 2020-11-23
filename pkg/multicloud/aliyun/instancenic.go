@@ -38,6 +38,13 @@ func (self *SInstanceNic) GetId() string {
 	return self.id
 }
 
+func (self *SInstanceNic) mustGetId() string {
+	if self.id == "" {
+		panic("empty network interface id")
+	}
+	return self.id
+}
+
 func (self *SInstanceNic) GetIP() string {
 	return self.ipAddr
 }
@@ -71,10 +78,11 @@ func (self *SInstanceNic) GetINetwork() cloudprovider.ICloudNetwork {
 }
 
 func (self *SInstanceNic) GetSubAddress() ([]string, error) {
+	selfId := self.mustGetId()
 	region := self.instance.host.zone.region
 	params := map[string]string{
 		"RegionId":             region.GetId(),
-		"NetworkInterfaceId.1": self.GetId(),
+		"NetworkInterfaceId.1": selfId,
 	}
 	body, err := region.ecsRequest("DescribeNetworkInterfaces", params)
 	if err != nil {
@@ -139,8 +147,8 @@ func (self *SInstanceNic) GetSubAddress() ([]string, error) {
 		ipAddrs          []string
 		networkInterface = resp.NetworkInterfaceSets.NetworkInterfaceSet[0]
 	)
-	if got := networkInterface.NetworkInterfaceID; got != self.GetId() {
-		return nil, errors.Errorf("got interface data for %s, expect %s", got, self.GetId())
+	if got := networkInterface.NetworkInterfaceID; got != selfId {
+		return nil, errors.Errorf("got interface data for %s, expect %s", got, selfId)
 	}
 	for _, privateIP := range networkInterface.PrivateIPSets.PrivateIPSet {
 		if !privateIP.Primary {
@@ -154,7 +162,7 @@ func (self *SInstanceNic) ipAddrsParams(ipAddrs []string) map[string]string {
 	region := self.instance.host.zone.region
 	params := map[string]string{
 		"RegionId":           region.GetId(),
-		"NetworkInterfaceId": self.GetId(),
+		"NetworkInterfaceId": self.mustGetId(),
 	}
 	for i, ipAddr := range ipAddrs {
 		k := fmt.Sprintf("PrivateIpAddress.%d", i+1)
@@ -215,7 +223,7 @@ func (self *SInstanceNic) UnassignAddress(ipAddrs []string) error {
 	request := ecs.CreateUnassignPrivateIpAddressesRequest()
 	request.Scheme = "https"
 
-	request.NetworkInterfaceId = self.GetId()
+	request.NetworkInterfaceId = self.mustGetId()
 	request.PrivateIpAddress = &ipAddrs
 	resp, err := ecsClient.UnassignPrivateIpAddresses(request)
 	if err != nil {
