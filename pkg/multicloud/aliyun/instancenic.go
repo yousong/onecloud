@@ -173,30 +173,26 @@ func (self *SInstanceNic) ipAddrsParams(ipAddrs []string) map[string]string {
 
 func (self *SInstanceNic) AssignAddress(ipAddrs []string) error {
 	var (
+		selfId   = self.mustGetId()
 		instance = self.instance
 		zone     = instance.host.zone
 		region   = zone.region
 	)
-	params := self.ipAddrsParams(ipAddrs)
-	body, err := region.ecsRequest("AssignPrivateIpAddresses", params)
+	ecsClient, err := region.getEcsClient()
 	if err != nil {
 		return err
 	}
+	request := ecs.CreateAssignPrivateIpAddressesRequest()
+	request.Scheme = "https"
 
-	type AssignPrivateIpAddressesResponse struct {
-		RequestID                     string `json:"RequestId"`
-		AssignedPrivateIPAddressesSet struct {
-			PrivateIPSet struct {
-				PrivateIPAddress []string `json:"PrivateIpAddress"`
-			} `json:"PrivateIpSet"`
-			NetworkInterfaceID string `json:"NetworkInterfaceId"`
-		} `json:"AssignedPrivateIpAddressesSet"`
+	request.NetworkInterfaceId = selfId
+	request.PrivateIpAddress = &ipAddrs
+	resp, err := ecsClient.AssignPrivateIpAddresses(request)
+	if err != nil {
+		return errors.Wrapf(err, "AssignPrivateIpAddresses")
 	}
-	var resp AssignPrivateIpAddressesResponse
-	if err := body.Unmarshal(&resp); err != nil {
-		return errors.Wrapf(err, "unmarshal AssignPrivateIpAddressesResponse: %s", body)
-	}
-	allocated := resp.AssignedPrivateIPAddressesSet.PrivateIPSet.PrivateIPAddress
+
+	allocated := resp.AssignedPrivateIpAddressesSet.PrivateIpSet.PrivateIpAddress
 	if len(allocated) != len(ipAddrs) {
 		return errors.Errorf("AssignAddress want %d addresses, got %d", len(ipAddrs), len(allocated))
 	}
@@ -212,6 +208,7 @@ func (self *SInstanceNic) AssignAddress(ipAddrs []string) error {
 
 func (self *SInstanceNic) UnassignAddress(ipAddrs []string) error {
 	var (
+		selfId   = self.mustGetId()
 		instance = self.instance
 		zone     = instance.host.zone
 		region   = zone.region
@@ -223,7 +220,7 @@ func (self *SInstanceNic) UnassignAddress(ipAddrs []string) error {
 	request := ecs.CreateUnassignPrivateIpAddressesRequest()
 	request.Scheme = "https"
 
-	request.NetworkInterfaceId = self.mustGetId()
+	request.NetworkInterfaceId = selfId
 	request.PrivateIpAddress = &ipAddrs
 	resp, err := ecsClient.UnassignPrivateIpAddresses(request)
 	if err != nil {
