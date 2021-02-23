@@ -324,17 +324,36 @@ func (keeper *OVNNorthboundKeeper) ClaimNetwork(ctx context.Context, network *ag
 		dhcpopts.Options["dns_server"] = "{223.5.5.5,223.6.6.6}"
 	}
 
+	acls := []*ovn_nb.ACL{
+		&ovn_nb.ACL{
+			Priority:  0,
+			Direction: aclDirToLport,
+			Match:     "ip6",
+			Action:    "drop",
+		},
+		&ovn_nb.ACL{
+			Priority:  0,
+			Direction: aclDirFromLport,
+			Match:     "ip6",
+			Action:    "drop",
+		},
+	}
+
 	var (
 		args      []string
 		ocVersion = fmt.Sprintf("%s.%d", network.UpdatedAt, network.UpdateVersion)
+		irows     = []types.IRow{
+			netLs,
+			netRnp,
+			netNrp,
+			netMdp,
+			dhcpopts,
+		}
 	)
-	allFound, args := cmp(&keeper.DB, ocVersion,
-		netLs,
-		netRnp,
-		netNrp,
-		netMdp,
-		dhcpopts,
-	)
+	for _, acl := range acls {
+		irows = append(irows, acl)
+	}
+	allFound, args := cmp(&keeper.DB, ocVersion, irows...)
 	if allFound {
 		return nil
 	}
@@ -345,6 +364,11 @@ func (keeper *OVNNorthboundKeeper) ClaimNetwork(ctx context.Context, network *ag
 	args = append(args, ovnCreateArgs(dhcpopts, "dhcpopts")...)
 	args = append(args, "--", "add", "Logical_Switch", netLs.Name, "ports", "@"+netNrp.Name, "@"+netMdp.Name)
 	args = append(args, "--", "add", "Logical_Router", vpcLrName(network.Vpc.Id), "ports", "@"+netRnp.Name)
+	for i, acl := range acls {
+		ref := fmt.Sprintf("acl%d", i)
+		args = append(args, ovnCreateArgs(acl, ref)...)
+		args = append(args, "--", "add", "Logical_Switch", netLs.Name, "acls", "@"+ref)
+	}
 	return keeper.cli.Must(ctx, "ClaimNetwork", args)
 }
 
